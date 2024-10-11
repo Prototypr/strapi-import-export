@@ -16,6 +16,7 @@ See video:
 
 ## TODO
 - Check if import from file/csv works
+- Replace all `strapi.entityService` - that gonna be deprecated 
 - Convert back to typescript if you want (I don't need this though)
 
 Useful Links:
