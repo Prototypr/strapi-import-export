@@ -368,9 +368,19 @@ const updateOrCreateCollectionTypeEntry = async (
     let dbEntry = await strapi.db.query(slug).findOne({ where });
 
     if (!dbEntry) {
-      return strapi.entityService.create(slug, { data: fileEntry });
+      // deprecated:
+      // https://docs.strapi.io/dev-docs/migration/v4-to-v5/additional-resources/from-entity-service-to-document-service#create
+      // return strapi.entityService.create(slug, { data: fileEntry });
+      return strapi.documents(slug).create({
+        data: fileEntry,
+      });
     } else {
-      return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
+      // deprecated:
+      // return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
+      return strapi.documents(slug).update({
+        documentId: dbEntry.id,
+        data: omit(fileEntry, ['id'])
+      });
     }
   } else {
     if (!fileEntry.locale) {
@@ -417,9 +427,18 @@ const updateOrCreateCollectionTypeEntry = async (
 
     if (isDatumInDefaultLocale) {
       if (!dbEntryDefaultLocaleId) {
-        return strapi.entityService.create(slug, { data: fileEntry });
+        // deprecated:  
+        // return strapi.entityService.create(slug, { data: fileEntry });
+        return strapi.documents(slug).create({
+          data: fileEntry,
+        });
       } else {
-        return strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']) });
+        // deprecated:
+        // return strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']) });
+        return strapi.documents(slug).update({
+          documentId: dbEntryDefaultLocaleId,
+          data: omit({ ...fileEntry }, ['id']),
+        });
       }
     } else {
       if (!dbEntryDefaultLocaleId) {
@@ -430,7 +449,12 @@ const updateOrCreateCollectionTypeEntry = async (
         const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
         return insertLocalizedEntry({ id: dbEntryDefaultLocaleId, data: omit({ ...fileEntry }, ['id']) });
       } else {
-        return strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
+        // deprecated:
+        // return strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
+        return strapi.documents(slug).update({
+          documentId: dbEntry.id,
+          data: omit({ ...fileEntry }, ['id']),
+        });
       }
     }
   }
@@ -452,9 +476,18 @@ const updateOrCreateSingleTypeEntry = async (
       .then((entries) => toArray(entries)?.[0]);
 
     if (!dbEntry) {
-      return strapi.entityService.create(slug, { data: fileEntry });
+      // deprecated:
+      // return strapi.entityService.create(slug, { data: fileEntry });
+      return strapi.documents(slug).create({
+        data: fileEntry,
+      });
     } else {
-      return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
+      // deprecated:
+      // return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
+      return strapi.documents(slug).update({
+        documentId: dbEntry.id,
+        data: omit(fileEntry, ['id']),
+      });
     }
   } else {
     const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
@@ -467,14 +500,27 @@ const updateOrCreateSingleTypeEntry = async (
 
     let entryDefaultLocale = await strapi.db.query(slug).findOne({ where: { locale: defaultLocale } });
     if (!entryDefaultLocale) {
-      entryDefaultLocale = await strapi.entityService.create(slug, { data: { ...fileEntry, locale: defaultLocale } });
+      // deprecated:
+      // entryDefaultLocale = await strapi.entityService.create(slug, { data: { ...fileEntry, locale: defaultLocale } });
+      entryDefaultLocale = await strapi.documents(slug).create({
+        data: { ...fileEntry, locale: defaultLocale },
+      });
     }
 
     if (isDatumInDefaultLocale) {
       if (!entryDefaultLocale) {
-        return strapi.entityService.create(slug, { data: fileEntry });
+        // deprecated:
+        // return strapi.entityService.create(slug, { data: fileEntry });
+        return strapi.documents(slug).create({
+          data: fileEntry,
+        });
       } else {
-        return strapi.entityService.update(slug, entryDefaultLocale.id, { data: fileEntry });
+        // deprecated:
+        // return strapi.entityService.update(slug, entryDefaultLocale.id, { data: fileEntry });
+        return strapi.documents(slug).update({
+          documentId: entryDefaultLocale.id,
+          data: fileEntry,
+        });
       }
     } else {
       const entryLocale = await strapi.db.query(slug).findOne({ where: { locale: fileEntry.locale } });

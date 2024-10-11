@@ -41,17 +41,26 @@ const findFile = async ({ hash, name, url, alternativeText, caption }, user, all
   let file = null;
 
   if (!file && hash) {
-    [file] = await strapi.entityService.findMany('plugin::upload.file', {
+    //deprecated:
+    // [file] = await strapi.entityService.findMany('plugin::upload.file', {
+    //   filters: {
+    //     hash: {
+    //       $startsWith: hash,
+    //     },
+    //   },
+    //   limit: 1,
+    // });
+    [file] = await strapi.documents('plugin::upload.file').findMany({
       filters: {
-        hash: {
-          $startsWith: hash,
-        },
+        hash: { $startsWith: hash },
       },
       limit: 1,
     });
   }
   if (!file && name) {
-    [file] = await strapi.entityService.findMany('plugin::upload.file', { filters: { name }, limit: 1 });
+    //deprecated:
+    // [file] = await strapi.entityService.findMany('plugin::upload.file', { filters: { name }, limit: 1 });
+    [file] = await strapi.documents('plugin::upload.file').findMany({ filters: { name }, limit: 1 });
   }
   if (!file && url) {
     const checkResult = isValidFileUrl(url, allowedFileTypes);

@@ -19,7 +19,7 @@
   "strapi-import-export.plugin.form.field.id-field.hint": "Choose the field used as a unique identifier",
   "strapi-import-export.plugin.form.field.id-field.label": "Id Field",
 
-  "strapi-import-export.plugin.page.homepage.section.quick-actions.title": "Quick Actions",
+  "strapi-import-export.plugin.page.homepage.section.quick-actions.title": "Global Actions",
   "strapi-import-export.plugin.page.homepage.section.preferences.title": "Preferences",
   "strapi-import-export.plugin.page.homepage.section.need-help.title": "Feature Request / Bug Report",
   "strapi-import-export.plugin.page.homepage.section.need-help.description": "Feel free to reach out on the product roadmap, discord or github ✌️",

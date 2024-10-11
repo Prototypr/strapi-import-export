@@ -44,7 +44,6 @@ const exportData = async ({ slug, search, applySearch, exportFormat, relationsAs
 
   // deprecated:
   // const entries = await strapi.entityService.findMany(slugToProcess, query);
-  // not working
   const entries = await strapi.documents(slugToProcess).findMany(query);
 
   const data = convertData(entries, {
