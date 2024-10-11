@@ -1,6 +1,6 @@
 {
   "name": "strapi-import-export",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Import export for strapi 5",
   "keywords": [],
   "license": "MIT",
