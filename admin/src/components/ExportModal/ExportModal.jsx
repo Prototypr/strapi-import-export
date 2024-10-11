@@ -1,13 +1,15 @@
 import './style.css';
 
-import { Button, Checkbox, Flex, Grid, GridItem, Loader, ModalBody, ModalFooter, ModalHeader, ModalLayout, Option, Portal, Select, Typography } from '@strapi/design-system';
+import { Modal, Button, Typography, Flex, Grid, Loader, SingleSelect, SingleSelectOption, Checkbox } from '@strapi/design-system';
+import { Download } from '@strapi/icons'; // Add this import for the Download icon
 import pick from 'lodash/pick';
 import range from 'lodash/range';
 import qs from 'qs';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useFetchClient } from '@strapi/admin/strapi-admin';
 
-import { api } from '../../api';
+import { PLUGIN_ID } from '../../pluginId';
 import { useAlerts } from '../../hooks/useAlerts';
 import { useDownloadFile } from '../../hooks/useDownloadFile';
 import { useI18n } from '../../hooks/useI18n';
@@ -32,6 +34,7 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
   const { slug, isSlugWholeDb } = useSlug();
   const { notify } = useAlerts();
   const { getPreferences } = useLocalStorage();
+  const { post } = useFetchClient();
 
   const [options, setOptions] = useState({ ...DEFAULT_OPTIONS, ...getPreferences() });
   const [data, setData] = useState(null);
@@ -46,17 +49,21 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
   const getData = async () => {
     setFetchingData(true);
     try {
-      const res = await api.exportData({
-        slug,
-        search: qs.stringify(pick(qs.parse(search), ['filters', 'sort'])),
-        applySearch: options.applyFilters,
-        exportFormat: options.exportFormat,
-        relationsAsId: options.relationsAsId,
-        deepness: options.deepness,
-        exportPluginsContentTypes: options.exportPluginsContentTypes,
+      console.log('fetching data');
+      const res = await post(`/${PLUGIN_ID}/export/contentTypes`, {
+        data:{
+          slug,
+          search: qs.stringify(pick(qs.parse(search), ['filters', 'sort'])),
+          applySearch: options.applyFilters,
+          exportFormat: options.exportFormat,
+          relationsAsId: options.relationsAsId,
+          deepness: options.deepness,
+          exportPluginsContentTypes: options.exportPluginsContentTypes,
+        }
       });
       setData(res.data);
     } catch (err) {
+      console.log('err', err);
       handleRequestErr(err, {
         403: () => notify(i18n('plugin.message.export.error.forbidden.title'), i18n('plugin.message.export.error.forbidden.message'), 'danger'),
         default: () => notify(i18n('plugin.message.export.error.unexpected.title'), i18n('plugin.message.export.error.unexpected.message'), 'danger'),
@@ -72,13 +79,22 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
       throw new Error(`File extension ${options.exportFormat} not supported to export data.`);
     }
 
+    let dataToCopy = data;
+    if(typeof data === 'object'){
+      dataToCopy =data?.data
+    }
+
     const { fileExt, fileContentType } = config;
     const fileName = `export_${slug}.${fileExt}`.replaceAll(':', '-').replaceAll('--', '-');
-    downloadFile(data, withTimestamp(fileName), `${fileContentType};charset=utf-8;`);
+    downloadFile(dataToCopy, withTimestamp(fileName), `${fileContentType};charset=utf-8;`);
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(data);
+    let dataToCopy = data;
+    if(typeof data === 'object'){
+      dataToCopy =data?.data
+    }
+    navigator.clipboard.writeText(dataToCopy);
     notify(i18n('plugin.export.copied'), '', 'success');
   };
 
@@ -87,32 +103,35 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
   };
 
   return (
-    <Portal>
-      <ModalLayout onClose={onClose} labelledBy="title">
-        <ModalHeader>
-          <Flex gap={2}>
-            <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
-              {i18n('plugin.cta.export', 'Export')}
-            </Typography>
-            <Typography textColor="neutral800" id="title">
-              {isSlugWholeDb ? i18n('plugin.export.whole-database', 'Whole database') : slug}
-            </Typography>
-          </Flex>
-        </ModalHeader>
-        <ModalBody className="plugin-ie-export_modal_body">
+    <Modal.Root onClose={onClose}>
+      <Modal.Trigger>
+        <Button startIcon={<Download />}>{i18n('plugin.cta.export', 'Export')}</Button>
+      </Modal.Trigger>
+      <Modal.Content>
+        <Modal.Header>
+          <Modal.Title>
+            <Flex gap={2}>
+              <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
+                {i18n('plugin.cta.export', 'Export')}
+              </Typography>
+              <Typography textColor="neutral800" id="title">
+                {isSlugWholeDb ? i18n('plugin.export.whole-database', 'Whole database') : slug}
+              </Typography>
+            </Flex>
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
           {fetchingData && (
-            <>
-              <Flex justifyContent="center">
-                <Loader>{i18n('plugin.export.fetching-data')}</Loader>
-              </Flex>
-            </>
+            <Flex justifyContent="center">
+              <Loader>{i18n('plugin.export.fetching-data')}</Loader>
+            </Flex>
           )}
           {!data && !fetchingData && (
             <>
               {shouldShowOption('exportFormat') && (
-                <Grid gap={8}>
-                  <GridItem col={12}>
-                    <Select
+                <Grid.Root gap={5}>
+                  <Grid.Item xs={12}>
+                    <SingleSelect
                       id="export-format"
                       label={i18n('plugin.export.export-format')}
                       required
@@ -121,16 +140,16 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
                       onChange={handleSetOption('exportFormat')}
                     >
                       {availableExportFormats.map((format) => (
-                        <Option key={format} value={format}>
+                        <SingleSelectOption key={format} value={format}>
                           {i18n(`plugin.data-format.${format}`)}
-                        </Option>
+                        </SingleSelectOption>
                       ))}
-                    </Select>
-                  </GridItem>
-                </Grid>
+                    </SingleSelect>
+                  </Grid.Item>
+                </Grid.Root>
               )}
 
-              <Flex direction="column" alignItems="start" gap="16px">
+              <Flex direction="column" alignItems="start" gap="16px" marginTop={4}>
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
                   {i18n('plugin.export.options')}
                 </Typography>
@@ -150,48 +169,43 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
                   </Checkbox>
                 )}
                 {shouldShowOption('deepness') && (
-                  <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={options.deepness} onChange={handleSetOption('deepness')}>
+                  <SingleSelect
+                    label={i18n('plugin.export.deepness')}
+                    placeholder={i18n('plugin.export.deepness')}
+                    value={options.deepness}
+                    onChange={handleSetOption('deepness')}
+                  >
                     {range(1, 21).map((deepness) => (
-                      <Option key={deepness} value={deepness}>
+                      <SingleSelectOption key={deepness} value={deepness}>
                         {deepness}
-                      </Option>
+                      </SingleSelectOption>
                     ))}
-                  </Select>
+                  </SingleSelect>
                 )}
               </Flex>
             </>
           )}
           {data && !fetchingData && (
+            <Editor content={data} language={dataFormatConfigs[options.exportFormat].language} />
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          {!!data && (
+            <Button variant="tertiary" onClick={clearData}>
+              {i18n('plugin.cta.back-to-options')}
+            </Button>
+          )}
+          {!data && <Button onClick={getData}>{i18n('plugin.cta.get-data')}</Button>}
+          {!!data && (
             <>
-              <Editor content={data} language={dataFormatConfigs[options.exportFormat].language} />
+              <Button variant="secondary" onClick={copyToClipboard}>
+                {i18n('plugin.cta.copy-to-clipboard')}
+              </Button>
+              <Button onClick={writeDataToFile}>{i18n('plugin.cta.download-file')}</Button>
             </>
           )}
-        </ModalBody>
-        <ModalFooter
-          startActions={
-            <>
-              {!!data && (
-                <Button variant="tertiary" onClick={clearData}>
-                  {i18n('plugin.cta.back-to-options')}
-                </Button>
-              )}
-            </>
-          }
-          endActions={
-            <>
-              {!data && <Button onClick={getData}>{i18n('plugin.cta.get-data')}</Button>}
-              {!!data && (
-                <>
-                  <Button variant="secondary" onClick={copyToClipboard}>
-                    {i18n('plugin.cta.copy-to-clipboard')}
-                  </Button>
-                  <Button onClick={writeDataToFile}>{i18n('plugin.cta.download-file')}</Button>
-                </>
-              )}
-            </>
-          }
-        />
-      </ModalLayout>
-    </Portal>
+        </Modal.Footer>
+      </Modal.Content>
+    </Modal.Root>
   );
 };

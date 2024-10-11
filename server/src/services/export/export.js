@@ -33,15 +33,19 @@ const dataConverterConfigs = {
  */
 const exportData = async ({ slug, search, applySearch, exportFormat, relationsAsId, deepness = 5 }) => {
   const slugToProcess = CustomSlugToSlug[slug] || slug;
-
   const queryBuilder = new ObjectBuilder();
+  
+  //fails in here
   queryBuilder.extend(getPopulateFromSchema(slugToProcess, deepness));
   if (applySearch) {
     queryBuilder.extend(buildFilterQuery(search));
   }
   const query = queryBuilder.get();
 
-  const entries = await strapi.entityService.findMany(slugToProcess, query);
+  // deprecated:
+  // const entries = await strapi.entityService.findMany(slugToProcess, query);
+  // not working
+  const entries = await strapi.documents(slugToProcess).findMany(query);
 
   const data = convertData(entries, {
     slug: slugToProcess,

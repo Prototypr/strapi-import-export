@@ -6,8 +6,8 @@ import { pluginPermissions } from '../permissions';
 import { Main } from '@strapi/design-system';
 import { useIntl } from 'react-intl';
 import { Header } from '../components/Header.jsx';
-// import { ExportButton } from '../components/ExportButton.jsx';
 import { ImportModal } from '../components/ImportModal/ImportModal.jsx';
+import { ExportModal } from '../components/ExportModal/ExportModal.jsx';
 
 import { getTranslation } from '../utils/getTranslation';
 import { useI18n } from '../hooks/useI18n';
@@ -16,7 +16,7 @@ const HomePage = () => {
   const { i18n } = useI18n();
   return (
     <>
-    mangowowoowm hello hello
+    {/* mango */}
       <Main>
         <Box padding={6} paddingTop={3}>
           <Header />
@@ -36,6 +36,7 @@ const HomePage = () => {
                   <Flex direction="column" alignItems="start" gap={4}>
                     <Flex gap={4}>
                       <ImportModal />
+                      <ExportModal/>
                       {/* <ExportButton availableExportFormats={[dataFormats.JSON_V2]} /> */}
                     </Flex>
                   </Flex>

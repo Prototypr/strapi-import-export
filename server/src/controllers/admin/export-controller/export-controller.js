@@ -8,9 +8,12 @@ const exportData = async (ctx) => {
     return ctx.forbidden();
   }
 
-  let { slug, search, applySearch, exportFormat, relationsAsId, deepness = 5, exportPluginsContentTypes } = ctx.request.body;
+  // let { slug, search, applySearch, exportFormat, relationsAsId, deepness = 5, exportPluginsContentTypes } = ctx.request.body;
 
+  // let data;
   let data;
+  const { data: dataRaw } = ctx.request.body;
+  const { slug, search, applySearch, exportFormat, relationsAsId, deepness = 5, exportPluginsContentTypes } = dataRaw;
   if (exportFormat === getService('export').formats.JSON_V2) {
     data = await getService('export').exportDataV2({ slug, search, applySearch, deepness, exportPluginsContentTypes });
   } else {
@@ -23,7 +26,8 @@ const exportData = async (ctx) => {
 };
 
 const hasPermissions = (ctx) => {
-  let { slug } = ctx.request.body;
+  const { data } = ctx.request.body;
+  const {slug } = data
   const { userAbility } = ctx.state;
 
   const slugs = slug === CustomSlugs.WHOLE_DB ? getAllSlugs() : [slug];

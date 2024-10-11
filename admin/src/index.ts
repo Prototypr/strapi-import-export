@@ -7,7 +7,13 @@ import {pluginPermissions} from './permissions';
 import { Alerts } from './components/Injected/Alerts/Alerts';
 // @ts-ignore
 import { ImportModal } from './components/ImportModal/ImportModal';
+// @ts-ignore
+import { ExportModal } from './components/ExportModal/ExportModal';
 import translations from './translations'; 
+// @ts-ignore
+import { InjectedImportExportSingleType } from './components/InjectedImportExportSingleType/InjectedImportExportSingleType';
+// @ts-ignore
+import { InjectedExportCollectionType } from './components/InjectedExportCollectionType/InjectedExportCollectionType';
 
 export default {
   register(app: any) {
@@ -52,18 +58,30 @@ export default {
       Component: ImportModal,
     });
     // app.injectContentManagerComponent('listView', 'actions', {
-    //   name: `${pluginId}-export`,
-    //   Component: InjectedExportCollectionType,
-    // });
-
+      //   name: `${pluginId}-export`,
+      //   Component: InjectedExportCollectionType,
+      // });
+      app.getPlugin('content-manager').injectComponent('listView', 'actions', {
+      name: `${PLUGIN_ID}-export`,
+      Component: InjectedExportCollectionType,
+    });
+      
     // app.injectContentManagerComponent('editView', 'right-links', {
     //   name: `${pluginId}-alerts`,
     //   Component: Alerts,
     // });
+    app.getPlugin('content-manager').injectComponent('editView', 'right-links', {
+      name: `${PLUGIN_ID}-alerts`,
+      Component: Alerts,
+    });
     // app.injectContentManagerComponent('editView', 'right-links', {
-    //   name: `${pluginId}-import-export`,
+      //   name: `${pluginId}-import-export`,
     //   Component: InjectedImportExportSingleType,
     // });
+    app.getPlugin('content-manager').injectComponent('editView', 'right-links', {
+      name: `${PLUGIN_ID}-import-export`,
+      Component: InjectedImportExportSingleType,
+    });
   },
 
   async registerTrads(app: any) {

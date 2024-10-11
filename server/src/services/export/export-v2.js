@@ -267,7 +267,9 @@ async function findEntries(slug, deepness, { search, ids }) {
       });
     }
 
-    const entries = await strapi.entityService.findMany(slug, queryBuilder.get());
+    // deprecated:
+    // const entries = await strapi.entityService.findMany(slug, queryBuilder.get());
+    const entries = await strapi.documents(slug).findMany(queryBuilder.get());
 
     return entries;
   } catch (_) {
