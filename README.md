@@ -1,19 +1,20 @@
 # Import export for Strapi 5
 
-- This is a fork of [strapi-import-export](https://github.com/Baboo7/strapi-plugin-import-export-entries) by @Baboo7, but built from scratch starting with this [guide](https://docs.strapi.io/dev-docs/plugins/development/create-a-plugin) to work with Strapi 5 and use the new API.
+`npm i strapi-import-export`
 
-- Fairly untested, but mostly working
+This is a fork of [strapi-import-export](https://github.com/Baboo7/strapi-plugin-import-export-entries) by @Baboo7, but built from scratch starting with this [guide](https://docs.strapi.io/dev-docs/plugins/development/create-a-plugin) to work with Strapi 5 and use the new API.
+
 
 ## Done
 - **Import** - seems to work okay (there is a known issue from the original plugin where the deepness dropdown doesn't work when the number of levels is high)
 - **Export** - seems working, need testing
-- Admin dashboard components started (converted a lot of the deprecated imports)
+- Admin dashboard components (converted a lot of deprecated imports)
     - replaced select dropdowns
     - updated checkboxes to use radix api
     - loads of other similar stuff
-- Server stuff converted to ESM so it can be used in Strapi 5
+- **Server** – converted to ESM so it can be used in Strapi 5
 - Removed a lot of typescript because it was causing issues with new plugin development yalc, and types became out of date 
-- Replace all `strapi.entityService` - that gonna be deprecated 
+- **Replaced `strapi.entityService`** - that gonna be deprecated 
 
 See video (this was when I first started):
 [Watch on YouTube 📹](https://youtu.be/9TlyBMAC1xY)
